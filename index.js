@@ -33,41 +33,49 @@ async function run() {
         const eventsCollection = db.collection('events')
         const usersCollection = db.collection('users')
 
-        app.post('/users', async(req, res) =>{
+        app.post('/users', async (req, res) => {
             const newUser = req.body;
-            const result = await usersCollection.insertOne(newUser)
-            res.send(result)
+            const email = req.body.email;
+            const query = { email: email }
+            const existingUser = await usersCollection.findOne(query)
+            if (existingUser) {
+                res.send({message: 'user already existing'})
+            }
+            else {
+                const result = await usersCollection.insertOne(newUser)
+                res.send(result)
+            }
         })
 
-        app.get('/events', async(req, res) =>{
+        app.get('/events', async (req, res) => {
             const email = req.query.email;
             const query = {}
-            if(email){
+            if (email) {
                 query.email = email
             }
 
-            const cursor = eventsCollection.find(query).sort({date: 1})
+            const cursor = eventsCollection.find(query).sort({ date: 1 })
             const result = await cursor.toArray()
             res.send(result)
         })
 
-        app.get('/events', async(req, res) =>{
+        app.get('/events', async (req, res) => {
             const id = req.params.id;
-            const query = {_id: new ObjectId(id)}
+            const query = { _id: new ObjectId(id) }
             const result = await eventsCollection.findOne(query)
             res.send(result)
         })
 
-        app.post('/events', async(req, res) =>{
+        app.post('/events', async (req, res) => {
             const newEvent = req.body
             const result = await eventsCollection.insertOne(newEvent)
             res.send(result)
         })
 
-        app.patch('/events/:id', async(req, res) =>{
+        app.patch('/events/:id', async (req, res) => {
             const id = req.params.id;
             const updatedEvents = req.body;
-            const query = {_id: new ObjectId(id)}
+            const query = { _id: new ObjectId(id) }
             const update = {
                 $set: updatedEvents
             }
@@ -75,9 +83,9 @@ async function run() {
             res.send(result)
         })
 
-        app.delete('/events/:id', async(req, res) =>{
+        app.delete('/events/:id', async (req, res) => {
             const id = req.params.id;
-            const query = {_id: new ObjectId(id)}
+            const query = { _id: new ObjectId(id) }
             const result = await eventsCollection.deleteOne(query)
             res.send(result)
         })
@@ -86,7 +94,7 @@ async function run() {
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     }
     finally {
-        
+
     }
 }
 
