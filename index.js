@@ -31,9 +31,22 @@ async function run() {
 
         const db = client.db('socialSpark_db')
         const eventsCollection = db.collection('events')
+        const usersCollection = db.collection('users')
+
+        app.post('/users', async(req, res) =>{
+            const newUser = req.body;
+            const result = await usersCollection.insertOne(newUser)
+            res.send(result)
+        })
 
         app.get('/events', async(req, res) =>{
-            const cursor = eventsCollection.find()
+            const email = req.query.email;
+            const query = {}
+            if(email){
+                query.email = email
+            }
+
+            const cursor = eventsCollection.find(query).sort({date: 1})
             const result = await cursor.toArray()
             res.send(result)
         })
