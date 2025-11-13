@@ -39,7 +39,7 @@ async function run() {
             const query = { email: email }
             const existingUser = await usersCollection.findOne(query)
             if (existingUser) {
-                res.send({message: 'user already existing'})
+                res.send({ message: 'user already existing' })
             }
             else {
                 const result = await usersCollection.insertOne(newUser)
@@ -65,6 +65,27 @@ async function run() {
             const result = await eventsCollection.findOne(query)
             res.send(result)
         })
+
+        // app.get('/events/:id', async (req, res) => {
+        //     try {
+        //         const id = req.params.id;
+        //         console.log("👉 Requested ID:", id);
+
+        //         const query = { _id: new ObjectId(id) };
+        //         const result = await eventsCollection.findOne(query);
+        //         console.log("🎯 Query Result:", result);
+
+        //         if (!result) {
+        //             return res.status(404).json({ message: "Event not found" });
+        //         }
+
+        //         res.status(200).json(result);
+        //     } catch (error) {
+        //         console.error("❌ Error:", error.message);
+        //         res.status(500).json({ message: 'Server error' });
+        //     }
+        // });
+
 
         app.post('/events', async (req, res) => {
             const newEvent = req.body
