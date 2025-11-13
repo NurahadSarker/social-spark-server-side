@@ -50,15 +50,21 @@ async function run() {
 
         app.get('/events', async (req, res) => {
             const email = req.query.email;
-            const query = {}
+            const search = req.query.search;
+            const query = {};
+
             if (email) {
-                query.email = email
+                query.email = email;
             }
 
-            const cursor = eventsCollection.find(query).sort({ date: 1 })
-            const result = await cursor.toArray()
-            res.send(result)
-        })
+            if (search) {
+                query.title = { $regex: search, $options: "i" };
+            }
+            const cursor = eventsCollection.find(query).sort({ date: 1 });
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
 
         app.get('/events/:id', async (req, res) => {
             const id = req.params.id;
@@ -111,17 +117,17 @@ async function run() {
         app.get('/join-events/:id', async (req, res) => {
             try {
                 const id = req.params.id;
-                const query = { eventId: id };
-                const result = await joinEventsCollection.findOne(query);
+                const query = { _id: new ObjectId(id) };
+                const event = await joinEventsCollection.findOne(query);
 
-                if (!result) {
-                    return res.status(404).json({ message: 'Joined event not found' });
+                if (!event) {
+                    return res.status(404).json({ message: "No join event found" });
                 }
 
-                res.send(result);
+                res.json(event);
             } catch (error) {
-                console.error('Error fetching joined event:', error);
-                res.status(500).json({ message: 'Internal Server Error' });
+                console.error("Error fetching join event:", error);
+                res.status(500).json({ message: "Internal Server Error" });
             }
         });
 
